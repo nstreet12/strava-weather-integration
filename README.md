@@ -37,11 +37,6 @@ Functional Overview
 Workflow
 --------
 
-mermaid
-
-Copy code
-
-`graph LR
     A[Strava Activity Recorded] -->|Triggers webhook| B(AWS API Gateway)
     B --> C{AWS Lambda Function}
     C -->|Fetches weather data| D[Open-Meteo API]
