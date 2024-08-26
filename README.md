@@ -34,15 +34,6 @@ Functional Overview
 
     -   Finally, the Lambda function posts the formatted weather data back to the Strava activity as a comment.
 
-Workflow
---------
-
-    A[Strava Activity Recorded] -->|Triggers webhook| B(AWS API Gateway)
-    B --> C{AWS Lambda Function}
-    C -->|Fetches weather data| D[Open-Meteo API]
-    C -->|Posts data| E[Strava API]
-    C -->|Logs process| F[AWS CloudWatch]
-    F -->|Monitors logs and performance| G[Developer]`
 
 Data Flow
 ---------
