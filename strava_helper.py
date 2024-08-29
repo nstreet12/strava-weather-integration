@@ -84,8 +84,8 @@ def put_temperature_to_strava(activity_id, weather):
     try:
         # Parse the JSON event to extract the temperature and elevation
         event_data = json.loads(weather['body'])
-        temperature = event_data.get('temperature')
-        elevation = event_data.get('elevation')
+        temperature = round(event_data.get('temperature'))
+        elevation = round(event_data.get('elevation'))
         
         # Retrieve the access token
         access_token = get_access_token("strava")
@@ -96,7 +96,7 @@ def put_temperature_to_strava(activity_id, weather):
         headers = {"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"}
         
         # Create the data to update the activity description with temperature and elevation
-        description = f"Weather at activity start: Temperature: {temperature} (F) | Elevation: {elevation} ft"
+        description = f"Temperature (F): {temperature} | Elevation (ft): {elevation}"
         update_data = {
             "description": description
         }
