@@ -4,7 +4,6 @@ import boto3
 import urllib3
 import json
 
-#Set up basic logging configuration
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
@@ -13,13 +12,9 @@ def get_access_token(resource):
         client_id = os.environ.get('strava_client_id')
         client_secret = os.environ.get('strava_client_secret')
         refresh_token = os.environ.get('strava_refresh_token')
-        # access_token = get_access_token()
         url = f"https://www.strava.com/oauth/token?client_id={client_id}&client_secret={client_secret}&refresh_token={refresh_token}&grant_type=refresh_token"
-        # headers = {"Authorization": f"Bearer {access_token}"}
-        # data = {"text": comment}
         logger.info(f"url : {url}")
         
-        # Create a PoolManager instance to make requests
         http = urllib3.PoolManager()
         
         # Make the POST request to Strava to get a new access token
@@ -33,12 +28,7 @@ def get_access_token(resource):
         if 'access_token' in response_data:
             return response_data['access_token']
         else:
-            raise Exception("Cannot find access token in response.")
-
-    ######
-    #Add Weather API access logic 
-    ######
-    
+            raise Exception("Cannot find access token in response.")    
     else:
         raise Exception("No Secret Resource Found.")
 
@@ -48,19 +38,16 @@ def get_strava_activity(activity_id):
         logger.info(f"access token ({access_token}) made into get_strava_activity function")
         url = f"https://www.strava.com/api/v3/activities/{activity_id}/"
         headers = {"Authorization": f"Bearer {access_token}"}
-        # data = {}
         logger.info(f"get activity url : {url}")
         
-        # Create a PoolManager instance to make requests
         http = urllib3.PoolManager()
         
         # Make the POST request to Strava to get a new access token
         response = http.request('GET', url, headers=headers)
         logger.info(f"response: {response}")
         
-        #Get needed activity Attributes: activity_id,location,start_time,end_time
+        # Get needed activity Attributes: activity_id,location,start_time,end_time
         response_data = json.loads(response.data.decode('utf-8'))
-        # logger.info(f"activity data json: {response_data}")
         activity_id = response_data['id']
         start_time = response_data['start_date']
         elapse_time_sec = response_data['elapsed_time']
