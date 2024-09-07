@@ -6,6 +6,8 @@ Description
 
 This project integrates Strava activities with real-time weather data, enabling users to see weather conditions at the time of their activities. When a new activity is logged in Strava, the AWS Lambda function is triggered, fetching weather data from the Open-Meteo API and appending it as a comment to the Strava activity.
 
+<img width="533" alt="image" src="https://github.com/user-attachments/assets/a3e68430-c6ea-420e-928d-fab2fd22a8a0">
+
 Components
 ----------
 
