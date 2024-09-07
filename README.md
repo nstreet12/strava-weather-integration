@@ -1,4 +1,4 @@
-Project Name: Strava Weather Integration
+Strava Weather Integration
 ========================================
 
 Description
