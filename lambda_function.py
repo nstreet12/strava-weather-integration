@@ -20,7 +20,7 @@ def lambda_handler(event, context):
             "statusCode": 200,
             "body": json.dumps({"hub.challenge": challenge})
         }
-    # For POST requests or other methods
+    # For POST requests
     elif event['httpMethod'] == 'POST' and 'hub.challenge' in event['queryStringParameters']:
         body = json.loads(event['body'])
         logger.info(f"Parsed body: {body}")

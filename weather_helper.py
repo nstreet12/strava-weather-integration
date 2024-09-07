@@ -4,23 +4,15 @@ import urllib3
 import json
 
 def round_to_nearest_hour(timestamp):
-    # Convert the timestamp to a datetime object
     dt = datetime.fromtimestamp(timestamp)
-    
-    # Determine whether to round up or down
     if dt.minute >= 30:
         dt = dt + timedelta(hours=1)
-    
-    # Set minutes, seconds, and microseconds to zero
     dt = dt.replace(minute=0, second=0, microsecond=0)
-    
     return dt
 
 def get_weather_data(lat, lng, start_time):
-    # Initialize logging
     logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
-    
+    logger.setLevel(logging.INFO)    
     try:
         # Convert start_time to Unix timestamp and round to the nearest hour
         start_dt = datetime.strptime(start_time, "%Y-%m-%dT%H:%M:%SZ")
