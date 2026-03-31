@@ -1,67 +1,79 @@
 Strava Weather Integration
 ========================================
 
-Description
------------
-
-This project integrates Strava activities with real-time weather data, enabling users to see weather conditions at the time of their activities. When a new activity is logged in Strava, the AWS Lambda function is triggered, fetching weather data from the Open-Meteo API and appending it as a comment to the Strava activity.
+When you log a new activity in Strava, this project automatically updates it with an AI-generated title and the weather conditions at the time and location of your activity.
 
 <img width="533" alt="image" src="https://github.com/user-attachments/assets/a3e68430-c6ea-420e-928d-fab2fd22a8a0">
 
-Components
+How It Works
+------------
+
+1. You finish an activity and save it in Strava
+2. Strava fires a webhook to an API Gateway endpoint
+3. A Lambda function fetches the full activity details from the Strava API
+4. Weather conditions at the activity's start time and location are fetched from the Open-Meteo API
+5. Claude generates a creative, context-aware title based on the activity type, effort, and weather
+6. The Lambda updates the Strava activity — setting the new title and appending weather to the description
+
+Infrastructure
+--------------
+
+- **AWS Lambda** — runs the Python handler on each Strava webhook event
+- **API Gateway** — exposes the `/webhook` endpoint that Strava calls
+- **AWS SAM** — manages all infrastructure as code (`template.yaml`)
+- **Strava API** — source of activity data; receives the final update
+- **Open-Meteo API** — provides historical weather data (no API key required)
+- **Anthropic Claude API** — generates the activity title
+
+Project Structure
+-----------------
+
+```
+strava-weather-integration/
+├── src/
+│   ├── lambda_function.py    # Webhook handler and main orchestration
+│   ├── strava_helper.py      # Strava API calls (fetch activity, update activity)
+│   ├── weather_helper.py     # Open-Meteo weather data fetching
+│   └── ai_title_helper.py    # Claude API title generation
+├── tests/                    # Unit tests
+├── .env.example              # Environment variable template
+├── DEPLOY.md                 # Step-by-step deployment guide
+├── Makefile                  # Build and deploy automation
+├── requirements.txt          # Python dependencies
+└── template.yaml             # AWS SAM infrastructure template
+```
+
+Deployment
 ----------
 
--   **AWS Lambda**: Hosts the Python function that is executed in response to event triggers.
--   **API Gateway**: Manages the incoming requests to the Lambda function, acting as a "front door" for requests.
--   **AWS IAM**: Manages access control by providing the Lambda function with necessary execution permissions.
--   **Strava API**: Provides access to user activities.
--   **Open-Meteo API**: Supplies weather data.
+See [DEPLOY.md](DEPLOY.md) for full instructions. The short version:
 
-Functional Overview
--------------------
+```bash
+make install
+make build
+make deploy \
+  strava_client_id=YOUR_ID \
+  strava_client_secret=YOUR_SECRET \
+  strava_refresh_token=YOUR_TOKEN \
+  ANTHROPIC_API_KEY=YOUR_KEY
+```
 
-1.  **Event Trigger**:
+After deploying, register the output `WebhookUrl` with Strava:
 
-    -   The process starts when a new activity is recorded in Strava, which triggers the webhook configured via Strava API.
-2.  **Lambda Invocation**:
+```bash
+curl -X POST https://www.strava.com/api/v3/push_subscriptions \
+  -F client_id=YOUR_ID \
+  -F client_secret=YOUR_SECRET \
+  -F callback_url=YOUR_WEBHOOK_URL \
+  -F verify_token=STRAVA
+```
 
-    -   Strava webhook events invoke the AWS Lambda function through the API Gateway endpoint.
-3.  **Data Fetching**:
+Required Environment Variables
+-------------------------------
 
-    -   Lambda function extracts the activity details and queries the Open-Meteo API to fetch weather data for the time and location of the activity.
-4.  **Data Processing**:
-
-    -   The weather data is processed and formatted within the Lambda function.
-5.  **Post to Strava**:
-
-    -   Finally, the Lambda function posts the formatted weather data back to the Strava activity as a comment.
-
-
-Data Flow
----------
-
-1.  **Activity Data**:
-
-    -   Received from Strava containing details like activity ID, user ID, start time, and location.
-2.  **Weather Data**:
-
-    -   Contains weather conditions such as temperature, humidity, and wind speed at the time of the activity.
-3.  **Processed Data**:
-
-    -   Combines activity and weather data to enhance user experience on Strava.
-
-Benefits
---------
-
--   **User Engagement**: Enhances user interaction with Strava by providing contextual weather information.
--   **Automation**: Automates the process of logging weather data without user intervention.
--   **Scalability**: Utilizes AWS Lambda for scalable, on-demand processing power to handle varying loads.
-
-Further Development
--------------------
-
-Potential areas for expansion include:
-
--   **Historical Weather Data**: Fetch historical weather data for past activities.
--   **User Preferences**: Allow users to customize the type of weather information they receive.
--   **Analytics**: Integrate more detailed analytics for users to track performance against weather conditions.
+| Variable | Description |
+|---|---|
+| `strava_client_id` | Strava OAuth client ID |
+| `strava_client_secret` | Strava OAuth client secret |
+| `strava_refresh_token` | Strava refresh token (requires `activity:write` scope) |
+| `ANTHROPIC_API_KEY` | Anthropic API key for Claude |
