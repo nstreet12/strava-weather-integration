@@ -29,7 +29,7 @@ Resources:
   StravaWeatherFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: .
+      CodeUri: src
       Handler: lambda_function.lambda_handler
       Description: Processes Strava webhook events and updates activities with weather data and AI-generated titles
       Environment:
