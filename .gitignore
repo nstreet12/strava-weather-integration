@@ -1,6 +1,11 @@
 __pycache__/
 .env
+.env.json
 .venv/
 .idea/
 *.pyc
 *.pyo
+*.zip
+.aws-sam/
+build/
+.DS_Store

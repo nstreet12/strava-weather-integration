@@ -1,0 +1,69 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Strava Weather Integration - Auto-updates activity titles and weather descriptions
+
+Parameters:
+  StravaClientId:
+    Type: String
+    Description: Strava OAuth client ID
+  StravaClientSecret:
+    Type: String
+    Description: Strava OAuth client secret
+    NoEcho: true
+  StravaRefreshToken:
+    Type: String
+    Description: Strava refresh token
+    NoEcho: true
+  AnthropicApiKey:
+    Type: String
+    Description: Anthropic API key for Claude title generation
+    NoEcho: true
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 256
+    Runtime: python3.11
+
+Resources:
+  StravaWeatherFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: lambda_function.lambda_handler
+      Description: Processes Strava webhook events and updates activities with weather data and AI-generated titles
+      Environment:
+        Variables:
+          strava_client_id: !Ref StravaClientId
+          strava_client_secret: !Ref StravaClientSecret
+          strava_refresh_token: !Ref StravaRefreshToken
+          ANTHROPIC_API_KEY: !Ref AnthropicApiKey
+      Events:
+        WebhookGet:
+          Type: Api
+          Properties:
+            Path: /webhook
+            Method: GET
+            RestApiId: !Ref StravaWebhookApi
+        WebhookPost:
+          Type: Api
+          Properties:
+            Path: /webhook
+            Method: POST
+            RestApiId: !Ref StravaWebhookApi
+      Policies:
+        - AWSLambdaBasicExecutionRole
+
+  StravaWebhookApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: prod
+      Description: API Gateway for Strava webhook events
+
+Outputs:
+  WebhookUrl:
+    Description: Strava webhook callback URL - use this when registering your Strava webhook
+    Value: !Sub "https://${StravaWebhookApi}.execute-api.${AWS::Region}.amazonaws.com/prod/webhook"
+  FunctionArn:
+    Description: Lambda function ARN
+    Value: !GetAtt StravaWeatherFunction.Arn

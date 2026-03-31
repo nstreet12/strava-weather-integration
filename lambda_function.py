@@ -3,8 +3,9 @@ import logging
 import urllib3
 import boto3
 from botocore.exceptions import ClientError
-from strava_helper import get_strava_activity, get_access_token, put_temperature_to_strava
+from strava_helper import get_strava_activity, get_access_token, put_data_to_strava
 from weather_helper import get_weather_data, round_to_nearest_hour
+from ai_title_helper import generate_activity_title
 
 #Set up basic logging configuration
 logger = logging.getLogger()
@@ -39,13 +40,16 @@ def lambda_handler(event, context):
         
         if aspect_type == 'create':
             activity_data = get_strava_activity(activity_id)
-            body = json.loads(activity_data['body'])
-            start_time = body['start_time']
-            lat, lng = body['geo_location']
-            
+            activity_body = json.loads(activity_data['body'])
+            start_time = activity_body['start_time']
+            lat, lng = activity_body['geo_location']
+
             weather_data = get_weather_data(lat, lng, start_time)
-            
-            return put_temperature_to_strava(activity_id, weather_data)
+            weather_body = json.loads(weather_data['body'])
+
+            ai_title = generate_activity_title(activity_body, weather_body)
+
+            return put_data_to_strava(activity_id, ai_title, weather_data)
         else:
             pass
     else:
