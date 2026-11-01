@@ -1,0 +1,19 @@
+[Unit]
+Description=Strava Weather Integration webhook service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=hermes
+Group=mediashare
+WorkingDirectory=/mnt/media/Documents/First Orion/fo-archive/personal_repos/strava-weather-integration
+EnvironmentFile=/mnt/media/Documents/First Orion/fo-archive/personal_repos/strava-weather-integration/strava-weather.env
+ExecStart="/mnt/media/Documents/First Orion/fo-archive/personal_repos/strava-weather-integration/.venv/bin/python3" "/mnt/media/Documents/First Orion/fo-archive/personal_repos/strava-weather-integration/server.py"
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

@@ -1,8 +1,5 @@
 import json
 import logging
-import urllib3
-import boto3
-from botocore.exceptions import ClientError
 from strava_helper import get_strava_activity, get_access_token, put_temperature_to_strava
 from weather_helper import get_weather_data, round_to_nearest_hour
 

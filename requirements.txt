@@ -1,0 +1,4 @@
+# Standard library only (http.server, json, urllib.parse) is used for the
+# server entrypoint. urllib3 is used by the existing business-logic helpers
+# for outbound HTTP calls to Strava / Open-Meteo.
+urllib3>=2.0,<3

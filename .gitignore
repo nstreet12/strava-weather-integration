@@ -4,3 +4,7 @@ __pycache__/
 .idea/
 *.pyc
 *.pyo
+
+# Local secrets (systemd EnvironmentFile) - never commit
+*.env
+strava-weather.env
